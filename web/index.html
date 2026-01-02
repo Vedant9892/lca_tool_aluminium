@@ -124,3 +124,125 @@
                             </div>
                         </div>
                     </div>
+
+                    <div id="sheet-dims" class="dims-group hidden">
+                        <h4><i class="fas fa-ruler-combined"></i> Sheet Dimensions</h4>
+                        <div class="dims-grid">
+                            <div class="input-group">
+                                <label for="sheet_length">Length (m)</label>
+                                <input type="number" id="sheet_length" step="0.01" value="2.0">
+                            </div>
+                            <div class="input-group">
+                                <label for="width">Width (m)</label>
+                                <input type="number" id="width" step="0.01" value="1.0">
+                            </div>
+                            <div class="input-group">
+                                <label for="thickness">Thickness (m)</label>
+                                <input type="number" id="thickness" step="0.001" value="0.005">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="compute-btn">
+                        <i class="fas fa-play"></i>
+                        Calculate Impact
+                    </button>
+                    <div id="status">Ready for calculation</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="results-section">
+            <!-- Environmental Impact Summary -->
+            <div class="summary-section">
+                <div class="section-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Environmental Impact Summary</h3>
+                    <p>Total environmental footprint across all manufacturing stages</p>
+                </div>
+
+                <div class="summary-grid" id="summary-cards">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Interactive Tabs for Data Views -->
+            <div class="tabs-section">
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="comparison">
+                        <i class="fas fa-chart-bar"></i>
+                        Comparison
+                    </button>
+                    <button class="tab-btn" data-tab="distribution">
+                        <i class="fas fa-chart-pie"></i>
+                        Distribution  
+                    </button>
+                    <button class="tab-btn" data-tab="process-flow">
+                        <i class="fas fa-project-diagram"></i>
+                        Process Flow
+                    </button>
+                    <button class="tab-btn" data-tab="efficiency">
+                        <i class="fas fa-gauge"></i>
+                        Efficiency
+                    </button>
+                </div>
+
+                <div class="tab-content">
+                    <div class="tab-panel active" id="comparison-panel">
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>CO₂ Emissions by Stage</h4>
+                                <canvas id="co2-comparison-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Electricity Consumption by Stage</h4>
+                                <canvas id="electricity-comparison-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="distribution-panel">
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>CO₂ Emissions Distribution</h4>
+                                <canvas id="co2-distribution-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Cost Distribution</h4>
+                                <canvas id="cost-distribution-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="process-flow-panel">
+                        <div class="chart-container full-width">
+                            <h4>Cumulative Environmental Impact Flow</h4>
+                            <canvas id="process-flow-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="efficiency-panel">
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>CO₂ Efficiency per kWh</h4>
+                                <canvas id="co2-efficiency-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Cost per kg CO₂</h4>
+                                <canvas id="cost-efficiency-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="table-section">
+                <div class="section-header">
+                    <i class="fas fa-table"></i>
+                    <h3>Per-Stage Breakdown</h3>
+                    <p>Detailed metrics for each manufacturing stage</p>
+                </div>
