@@ -9,3 +9,118 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-recycle fa-2x"></i>
+                <div>
+                    <h1>LCA Dashboard</h1>
+                    <p class="subtitle">Environmental Impact Assessment Tool</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator">
+                    <i class="fas fa-circle status-dot"></i>
+                    <span>Real-time Analysis</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Input Section -->
+        <section class="input-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cog"></i>
+                    <h3>Configuration Parameters</h3>
+                    <p class="card-subtitle">Define your product specifications and manufacturing parameters</p>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="product">
+                            <i class="fas fa-cube"></i>
+                            Product Type
+                        </label>
+                        <select id="product">
+                            <option value="pipe">Aluminum Pipe</option>
+                            <option value="sheet">Aluminum Sheet</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="units">
+                            <i class="fas fa-calculator"></i>
+                            Units
+                        </label>
+                        <input type="number" id="units" min="1" value="100" placeholder="Enter quantity">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="route">
+                            <i class="fas fa-route"></i>
+                            Manufacturing Route
+                        </label>
+                        <select id="route">
+                            <option value="conventional">Conventional (Bauxite)</option>
+                            <option value="recycled">Recycled</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="grade-wrap" >
+                        <label for="grade" style="margin-top:3px;">
+                            <i class="fas fa-medal"></i>
+                            Bauxite Grade
+                        </label>
+                        <select id="grade" style="margin-top:5px;">
+                            <option value="high">High Grade</option>
+                            <option value="medium">Medium Grade</option>
+                            <option value="low">Low Grade</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="energy">
+                            <i class="fas fa-bolt"></i>
+                            Energy Source
+                        </label>
+                        <select id="energy">
+                            <option value="renewable">Renewable</option>
+                            <option value="fossil">Non-Renewable</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="eol">
+                            <i class="fas fa-recycle"></i>
+                            End-of-Life Option
+                        </label>
+                        <select id="eol">
+                            <option value="recycle">Recycle</option>
+                            <option value="landfill">Landfill</option>
+                            <option value="incineration">Incineration</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dimension Controls -->
+                <div class="dimensions-section">
+                    <div id="pipe-dims" class="dims-group">
+                        <h4><i class="fas fa-ruler-combined"></i> Pipe Dimensions</h4>
+                        <div class="dims-grid">
+                            <div class="input-group">
+                                <label for="outer_radius">Outer Radius (m)</label>
+                                <input type="number" id="outer_radius" step="0.01" value="0.1">
+                            </div>
+                            <div class="input-group">
+                                <label for="inner_radius">Inner Radius (m)</label>
+                                <input type="number" id="inner_radius" step="0.01" value="0.08">
+                            </div>
+                            <div class="input-group">
+                                <label for="pipe_length">Length (m)</label>
+                                <input type="number" id="pipe_length" step="0.01" value="2.0">
+                            </div>
+                        </div>
+                    </div>
