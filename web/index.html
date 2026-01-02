@@ -246,3 +246,43 @@
                     <h3>Per-Stage Breakdown</h3>
                     <p>Detailed metrics for each manufacturing stage</p>
                 </div>
+                <div class="table-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="table-search" placeholder="Search stages...">
+                    </div>
+                    <div class="table-actions">
+                        <button class="button" id="export-btn">
+                            <i class="fas fa-download"></i>
+                            Export Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Stage</th>
+                                <th>Scope</th>
+                                <th>Units</th>
+                                <th>Quality Score</th>
+                                <th>Electricity (kWh)</th>
+                                <th>CO₂ (kg)</th>
+                                <th>Natural Gas (Nm³)</th>
+                                <th>Wastewater (L)</th>
+                                <th>Manufacturing Cost ($)</th>
+                                <th>Transport Cost ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table content will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>
