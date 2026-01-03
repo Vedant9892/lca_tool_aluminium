@@ -368,3 +368,79 @@ function updateComparisonCharts(stages) {
 
     createOrUpdateChart("electricity-comparison-chart", "bar", electricityData, electricityOptions);
 }
+function updateDistributionCharts(stages) {
+    const colors = ["#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", "#fab1a0", "#fd79a8"];
+
+    // CO2 Distribution
+    const co2Distribution = {
+        labels: stages.map(s => s.stage.split(" ")[0]),
+        datasets: [{
+            data: stages.map(s => s.carbon_kgco2e || 0),
+            backgroundColor: colors,
+            borderWidth: 2,
+            borderColor: "#ffffff"
+        }]
+    };
+
+    createOrUpdateChart("co2-distribution-chart", "doughnut", co2Distribution, getDoughnutChartOptions());
+
+    // Cost Distribution  
+    const costDistribution = {
+        labels: stages.map(s => s.stage.split(" ")[0]),
+        datasets: [{
+            data: stages.map(s => (s.manufacturing_cost_per_unit_usd || 0) + (s.transport_cost_usd || 0)),
+            backgroundColor: colors,
+            borderWidth: 2,
+            borderColor: "#ffffff"
+        }]
+    };
+
+    createOrUpdateChart("cost-distribution-chart", "doughnut", costDistribution, getDoughnutChartOptions());
+}
+
+function updateProcessFlowChart(stages) {
+    // Calculate cumulative values
+    let cumulativeCO2 = 0;
+    const cumulativeData = stages.map(stage => {
+        cumulativeCO2 += stage.carbon_kgco2e || 0;
+        return cumulativeCO2;
+    });
+
+    const processFlowData = {
+        labels: stages.map(s => s.stage.split(" ")[0]),
+        datasets: [{
+            label: "Cumulative CO₂ (kg)",
+            data: cumulativeData,
+            borderColor: "#667eea",
+            backgroundColor: "rgba(102, 126, 234, 0.1)",
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: "#667eea",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 6,
+        }]
+    };
+
+    const processFlowOptions = {
+        ...getBaseChartOptions(),
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,0.1)" },
+                ticks: { color: "#b4c6fc" }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { 
+                    color: "#b4c6fc",
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        }
+    };
+
+    createOrUpdateChart("process-flow-chart", "line", processFlowData, processFlowOptions);
+}
