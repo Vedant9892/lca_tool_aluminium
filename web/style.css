@@ -515,3 +515,98 @@ button:active {
     position: relative;
     overflow: hidden;
 }
+
+.chart-container h4 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    flex-shrink: 0 !important; /* Don't shrink the title */
+    height: 30px; /* Fixed title height */
+}
+
+.chart-container.full-width {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    height: 500px !important; /* Fixed height for full-width charts too */
+}
+
+.chart-container canvas {
+    flex: 1 !important; /* Take remaining space */
+    min-height: 0 !important; /* Allow shrinking */
+    width: 100% !important;
+    height: auto !important;
+    max-height: 450px !important; /* Reserve space for title */
+    position: relative !important;
+}
+
+/* Specific fixes for doughnut charts */
+.chart-container:has(canvas[id*="distribution"]) {
+    height: 450px !important; /* Slightly shorter for pie charts */
+}
+
+.chart-container canvas[id*="distribution"] {
+    max-height: 380px !important; /* Smaller for pie/doughnut charts */
+}
+
+/* Table Section */
+.table-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-card);
+}
+
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.search-box input {
+    width: 100%;
+    padding-left: 3rem;
+    margin: 0;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
