@@ -266,3 +266,67 @@ function getBaseChartOptions() {
         }
     };
 }
+// Base chart options for doughnut/pie charts
+function getDoughnutChartOptions() {
+    return {
+        responsive: true,
+        maintainAspectRatio: false, // CRITICAL: Allow custom sizing
+        aspectRatio: 1, // Keep circular
+        plugins: {
+            legend: {
+                position: "bottom",
+                labels: { 
+                    color: "#b4c6fc", 
+                    usePointStyle: true,
+                    padding: 15,
+                    font: {
+                        size: 12
+                    }
+                }
+            },
+            title: { display: false }
+        },
+        layout: {
+            padding: {
+                top: 20,
+                bottom: 20,
+                left: 20,
+                right: 20
+            }
+        }
+    };
+}
+
+function updateComparisonCharts(stages) {
+    // CO2 Emissions by Stage
+    const co2Data = {
+        labels: stages.map(s => s.stage.split(" ")[0]), // Shorten labels
+        datasets: [{
+            label: "CO₂ Emissions (kg)",
+            data: stages.map(s => s.carbon_kgco2e || 0),
+            backgroundColor: "#ff6384",
+            borderColor: "#ff4757",
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    };
+
+    const co2Options = {
+        ...getBaseChartOptions(),
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,0.1)" },
+                ticks: { color: "#b4c6fc" }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { 
+                    color: "#b4c6fc",
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        }
+    };
