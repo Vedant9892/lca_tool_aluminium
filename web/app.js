@@ -618,3 +618,85 @@ function exportTableData() {
     link.click();
     document.body.removeChild(link);
 }
+
+// Additional CSS styles for enhanced table elements
+const additionalStyles = `
+<style>
+.scope-badge {
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.quality-bar {
+    background: white;
+    border-radius: 8px;
+    height: 20px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.quality-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #f9b618;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+}
+
+.metric-value {
+    font-weight: 600;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.metric-value.co2 {
+    color: #ff6384;
+}
+
+.metric-value.cost {
+    color: #4ecdc4;
+}
+
+#results-table tbody tr:hover .metric-value {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+/* CHART CONTAINER FIXES */
+.chart-container {
+    height: 500px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.chart-container h4 {
+    flex-shrink: 0 !important;
+    margin-bottom: 1rem !important;
+}
+
+.chart-container canvas {
+    flex: 1 !important;
+    min-height: 0 !important;
+    max-height: 450px !important;
+}
+
+/* Doughnut chart specific sizing */
+.chart-container canvas[id*="distribution"] {
+    max-height: 400px !important;
+}
+</style>
+`;
+
+// Inject additional styles
+document.head.insertAdjacentHTML('beforeend', additionalStyles);
