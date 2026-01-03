@@ -27,3 +27,39 @@ function setupEventListeners() {
     $("#table-search")?.addEventListener("input", handleTableSearch);
     $("#export-btn")?.addEventListener("click", exportTableData);
 }
+
+function toggleDims() {
+    const product = $("#product")?.value;
+    const route = $("#route")?.value;
+
+    // Toggle dimension sections
+    $("#pipe-dims")?.classList.toggle("hidden", product !== "pipe");
+    $("#sheet-dims")?.classList.toggle("hidden", product !== "sheet");
+
+    // Toggle grade selection for conventional route
+    const gradeWrap = $("#grade-wrap");
+    if (gradeWrap) {
+        gradeWrap.style.display = (route === "conventional") ? "block" : "none";
+    }
+}
+
+function setupTabNavigation() {
+    const tabButtons = $$(".tab-btn");
+    const tabPanels = $$(".tab-panel");
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const targetTab = button.dataset.tab;
+
+            // Update active states
+            tabButtons.forEach(btn => btn.classList.remove("active"));
+            tabPanels.forEach(panel => panel.classList.remove("active"));
+
+            button.classList.add("active");
+            const targetPanel = $(`#${targetTab}-panel`);
+            if (targetPanel) {
+                targetPanel.classList.add("active");
+            }
+        });
+    });
+}
