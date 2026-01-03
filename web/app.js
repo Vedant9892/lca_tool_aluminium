@@ -444,3 +444,177 @@ function updateProcessFlowChart(stages) {
 
     createOrUpdateChart("process-flow-chart", "line", processFlowData, processFlowOptions);
 }
+
+function updateEfficiencyCharts(stages) {
+    // CO2 Efficiency per kWh
+    const co2EfficiencyData = {
+        labels: stages.map(s => s.stage.split(" ")[0]),
+        datasets: [{
+            label: "CO₂ per kWh",
+            data: stages.map(s => {
+                const elec = s.electricity_kwh || 0;
+                const co2 = s.carbon_kgco2e || 0;
+                return elec > 0 ? co2 / elec : 0;
+            }),
+            backgroundColor: "#4ecdc4",
+            borderColor: "#44a08d",
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    };
+
+    const co2EfficiencyOptions = {
+        ...getBaseChartOptions(),
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,0.1)" },
+                ticks: { color: "#b4c6fc" }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { 
+                    color: "#b4c6fc",
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        }
+    };
+
+    createOrUpdateChart("co2-efficiency-chart", "bar", co2EfficiencyData, co2EfficiencyOptions);
+
+    // Cost per kg CO2
+    const costEfficiencyData = {
+        labels: stages.map(s => s.stage.split(" ")[0]),
+        datasets: [{
+            label: "Cost per kg CO₂",
+            data: stages.map(s => {
+                const co2 = s.carbon_kgco2e || 0;
+                const cost = (s.manufacturing_cost_per_unit_usd || 0) + (s.transport_cost_usd || 0);
+                return co2 > 0 ? cost / co2 : 0;
+            }),
+            borderColor: "#667eea",
+            backgroundColor: "rgba(102, 126, 234, 0.1)",
+            borderWidth: 3,
+            fill: false,
+            tension: 0.4,
+            pointBackgroundColor: "#667eea",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 6,
+        }]
+    };
+
+    const costEfficiencyOptions = {
+        ...getBaseChartOptions(),
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,0.1)" },
+                ticks: { color: "#b4c6fc" }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { 
+                    color: "#b4c6fc",
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        }
+    };
+
+    createOrUpdateChart("cost-efficiency-chart", "line", costEfficiencyData, costEfficiencyOptions);
+}
+
+function createOrUpdateChart(canvasId, type, data, options) {
+    const canvas = $(`#${canvasId}`);
+    if (!canvas) {
+        console.warn(`Canvas element not found: ${canvasId}`);
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    // Destroy existing chart if it exists
+    if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+    }
+
+    // FORCE canvas size before creating chart
+    const container = canvas.parentElement;
+    if (container) {
+        const containerHeight = container.clientHeight;
+        const titleHeight = container.querySelector('h4')?.offsetHeight || 40;
+        const availableHeight = containerHeight - titleHeight - 40; // 40px for padding
+
+        canvas.style.height = `${Math.min(availableHeight, 450)}px`;
+        canvas.height = Math.min(availableHeight, 450);
+    }
+
+    // Create new chart with fixed options
+    chartInstances[canvasId] = new Chart(ctx, {
+        type: type,
+        data: data,
+        options: options
+    });
+}
+
+function updateResultsTable(stages) {
+    const tableBody = $("#results-table tbody");
+    if (!tableBody || !stages) return;
+
+    // Filter for total scope data
+    const totalData = stages.filter(stage => stage.scope === "total");
+
+    tableBody.innerHTML = totalData.map(stage => `
+        <tr>
+            <td><strong>${stage.stage}</strong></td>
+            <td><span class="scope-badge">${stage.scope}</span></td>
+            <td>${stage.units}</td>
+            <td><div class="quality-bar"><div class="quality-fill" style="width: ${(stage.quality_score || 0) * 100}%"></div>${((stage.quality_score || 0) * 100).toFixed(1)}%</div></td>
+            <td><span class="metric-value">${(stage.electricity_kwh || 0).toFixed(1)}</span></td>
+            <td><span class="metric-value co2">${(stage.carbon_kgco2e || 0).toFixed(2)}</span></td>
+            <td><span class="metric-value">${(stage.naturalGas_nm3 || 0).toFixed(3)}</span></td>
+            <td><span class="metric-value">${(stage.wastewater_l || 0).toFixed(1)}</span></td>
+            <td><span class="metric-value cost">$${(stage.manufacturing_cost_per_unit_usd || 0).toFixed(2)}</span></td>
+            <td><span class="metric-value cost">$${(stage.transport_cost_usd || 0).toFixed(2)}</span></td>
+        </tr>
+    `).join("");
+}
+
+function handleTableSearch() {
+    const searchTerm = $("#table-search")?.value.toLowerCase() || "";
+    const rows = $$("#results-table tbody tr");
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? "" : "none";
+    });
+}
+
+function exportTableData() {
+    const table = $("#results-table");
+    if (!table) return;
+
+    let csv = "data:text/csv;charset=utf-8,";
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll("td, th");
+        const csvRow = Array.from(cols).map(col => {
+            return '\"' + col.textContent.replace(/"/g, '""') + '\"';
+        }).join(",");
+        csv += csvRow + "\r\n";
+    });
+
+    const encodedUri = encodeURI(csv);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "lca_results.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
