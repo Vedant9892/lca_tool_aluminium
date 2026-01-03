@@ -330,3 +330,41 @@ function updateComparisonCharts(stages) {
             }
         }
     };
+    
+    createOrUpdateChart("co2-comparison-chart", "bar", co2Data, co2Options);
+
+    // Electricity Consumption by Stage
+    const electricityData = {
+        labels: stages.map(s => s.stage.split(" ")[0]),
+        datasets: [{
+            label: "Electricity (kWh)",
+            data: stages.map(s => s.electricity_kwh || 0),
+            backgroundColor: "#ffa726",
+            borderColor: "#ff9800",
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    };
+
+    const electricityOptions = {
+        ...getBaseChartOptions(),
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,0.1)" },
+                ticks: { color: "#b4c6fc" }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { 
+                    color: "#b4c6fc",
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        }
+    };
+
+    createOrUpdateChart("electricity-comparison-chart", "bar", electricityData, electricityOptions);
+}
