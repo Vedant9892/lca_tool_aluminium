@@ -63,3 +63,18 @@ function setupTabNavigation() {
         });
     });
 }
+
+function hideResultsSection() {
+    const resultsSection = $("#results");
+    if (resultsSection) {
+        resultsSection.style.display = "none";
+    }
+}
+
+function showResultsSection() {
+    const resultsSection = $("#results");
+    if (resultsSection) {
+        resultsSection.style.display = "block";
+        resultsSection.classList.add("fade-in");
+    }
+}
