@@ -95,4 +95,122 @@ def _candidates(random_state: int = 42) -> Dict[str, object]:
     
     return cand
 
+def _fit_and_score(
+    name: str,
+    estimator,
+    X_tr: np.ndarray, y_tr: np.ndarray,
+    X_te: np.ndarray, y_te: np.ndarray
+) -> Dict:
+    try:
+        estimator.fit(X_tr, y_tr)
+        pred = estimator.predict(X_te)
+        
+        # Check for NaN predictions
+        if np.any(np.isnan(pred)):
+            return {"model_name": name, "rmse": np.inf, "r2": -np.inf, "error": "NaN predictions"}
+        
+        # Calculate metrics
+        mse = mean_squared_error(y_te, pred)
+        rmse = float(np.sqrt(mse))
+        r2 = float(r2_score(y_te, pred))
+        
+        return {"model_name": name, "rmse": rmse, "r2": r2}
+        
+    except Exception as e:
+        print(f"ERROR training {name}: {str(e)}")
+        return {"model_name": name, "rmse": np.inf, "r2": -np.inf, "error": str(e)}
+
+
+def _train_one_target(df: pd.DataFrame, target: str, out_name: str, random_state: int = 42) -> Dict:
+    from time import time
+    import joblib
+    
+    print(f"\n{'='*50}")
+    print(f"Training models for target: {target}")
+    print(f"{'='*50}")
+    
+    df_ = df.dropna(subset=[target]).copy()
+    if df_.empty:
+        print(f"No data available for target: {target}")
+        return {"target": target, "winner": None, "rmse": None, "r2": None, "n_test": 0, "skipped": True}
+    
+    y = df_[target].values
+    pre, num_cols, cat_cols = _build_preprocessor(df_, target)
+    X = df_.drop(columns=[target])
+    
+    print(f"Input data shape: {X.shape}")
+    print(f"Target shape: {y.shape}")
+    print(f"NaN in target: {np.sum(np.isnan(y))}")
+    
+    # Fit preprocessor and transform
+    try:
+        X_proc = pre.fit_transform(X)
+        print(f"Processed data shape: {X_proc.shape}")
+        print(f"NaN in processed data: {np.sum(np.isnan(X_proc))}")
+        
+        # Final check - remove any rows with NaN
+        nan_mask = np.isnan(X_proc).any(axis=1) | np.isnan(y)
+        if np.any(nan_mask):
+            print(f"Removing {np.sum(nan_mask)} rows with NaN values")
+            X_proc = X_proc[~nan_mask]
+            y = y[~nan_mask]
+            
+    except Exception as e:
+        print(f"Preprocessing failed: {e}")
+        return {"target": target, "winner": None, "rmse": None, "r2": None, "n_test": 0, "skipped": True}
+    
+    # Split once, shared by all candidates
+    X_tr, X_te, y_tr, y_te = train_test_split(X_proc, y, test_size=0.2, random_state=random_state)
+    
+    print(f"Training set size: {len(X_tr)}")
+    print(f"Test set size: {len(X_te)}")
+    print("\nTraining models...")
+    
+    # Evaluate candidates
+    leaderboard: List[Dict] = []
+    best = {"model_name": None, "rmse": np.inf, "r2": -np.inf, "estimator": None}
+    
+    for mname, est in _candidates(random_state).items():
+        print(f"\n  Training {mname}...", end=" ")
+        start = time()
+        metrics = _fit_and_score(mname, est, X_tr, y_tr, X_te, y_te)
+        metrics["train_seconds"] = round(time() - start, 3)
+        leaderboard.append(metrics)
+        
+        if "error" in metrics:
+            print(f"FAILED - {metrics['error']}")
+        else:
+            print(f"RMSE: {metrics['rmse']:.4f}, R²: {metrics['r2']:.4f}, Time: {metrics['train_seconds']}s")
+            
+            # Update best model
+            if (metrics["rmse"] < best["rmse"]) or (
+                np.isclose(metrics["rmse"], best["rmse"]) and metrics["r2"] > best["r2"]
+            ):
+                best = {"model_name": mname, "rmse": metrics["rmse"], "r2": metrics["r2"], "estimator": est}
+    
+    # Filter out failed models and sort leaderboard
+    successful_models = [m for m in leaderboard if "error" not in m]
+    successful_models.sort(key=lambda x: x["rmse"])
+    
+    if not successful_models:
+        print("\n❌ All models failed to train!")
+        return {"target": target, "winner": None, "rmse": None, "r2": None, "n_test": 0, "skipped": True}
+    
+    print(f"\n📊 LEADERBOARD for {target}:")
+    print("-" * 70)
+    print(f"{'Rank':<5} {'Model':<25} {'RMSE':<12} {'R²':<12} {'Time (s)':<10}")
+    print("-" * 70)
+    for i, model in enumerate(successful_models, 1):
+        winner_mark = "🏆" if model["model_name"] == best["model_name"] else "  "
+        print(f"{winner_mark}{i:<3} {model['model_name']:<25} {model['rmse']:<12.4f} {model['r2']:<12.4f} {model['train_seconds']:<10}")
+    
+    if best["model_name"]:
+        print(f"\n🎯 WINNER: {best['model_name']} (RMSE: {best['rmse']:.4f}, R²: {best['r2']:.4f})")
+        
+        # Save results
+        EXP_DIR.mkdir(parents=True, exist_ok=True)
+        with open(EXP_DIR / f"{out_name}_leaderboard.json", "w") as f:
+            json.dump({"target": target, "leaderboard": successful_models}, f, indent=2)
+
+
 
