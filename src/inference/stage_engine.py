@@ -39,3 +39,22 @@ SHEET_SPLITS = {
     "manufacturing_cost_per_unit":        [0.22, 0.30, 0.18, 0.15, 0.15],
     "transport_usd":   [0.40, 0.25, 0.15, 0.10, 0.10],
 }
+DEFAULT_QUALITY_BY_GRADE = {"high": 0.92, "medium": 0.85, "low": 0.78, "na": 0.80}
+EOL_CREDIT_FACTOR = {"recycle": -0.15, "reuse": -0.10, "landfill": 0.0}
+
+@dataclass
+class DashboardInput:
+    product: str                    # "pipe" | "sheet"
+    units: int
+    route_type: str                 # "conventional" | "recycle"
+    bauxite_grade: str              # "high" | "medium" | "low" | "na"
+    energy_source: str              # "renewable" | "non_renewable"
+    eol_option: str                 # "recycle" | "reuse" | "landfill"
+    # pipe dims (m)
+    outer_radius_m: float | None = None
+    inner_radius_m: float | None = None
+    length_m: float | None = None
+    # sheet dims (m)
+    thickness_m: float | None = None
+    width_m: float | None = None
+    sheet_length_m: float | None = None
