@@ -133,3 +133,19 @@ def build_stage_breakdown(d: DashboardInput, perkg: dict[str, float]) -> pd.Data
     df_total["units"] = d.units
     df_total["scope"] = "total"
     return pd.concat([df_unit, df_total], ignore_index=True)
+def _split_table(stages: list[str], splits: dict[str, list[float]], totals: dict[str, float], quality_score: float) -> pd.DataFrame:
+    keys = ["electricity_kwh","carbon_kgco2e","naturalGas_nm3","wastewater_l","manufacturing_cost_per_unit","transport_usd"]
+    norm = {k: _normalize(splits[k]) for k in keys}
+    rows = []
+    for i, st in enumerate(stages):
+        rows.append({
+            "stage": st,
+            "quality_score": quality_score,
+            "electricity_kwh": totals["electricity_kwh"]*norm["electricity_kwh"][i],
+            "carbon_kgco2e":   totals["carbon_kgco2e"]  *norm["carbon_kgco2e"][i],
+            "naturalGas_nm3": totals["naturalGas_nm3"]*norm["naturalGas_nm3"][i],
+            "wastewater_l":    totals["wastewater_l"]   *norm["wastewater_l"][i],
+            "manufacturing_cost_per_unit_usd": totals["manufacturing_cost_per_unit"]*norm["manufacturing_cost_per_unit"][i],
+            "transport_cost_usd": totals["transport_usd"]*norm["transport_usd"][i],
+        })
+    return pd.DataFrame(rows)
