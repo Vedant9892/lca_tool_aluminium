@@ -284,4 +284,32 @@ def main():
     all_metrics: Dict[str, Dict] = {}
 
 
+    for tgt in targets:
+        out_name = name_map.get(tgt, tgt)
+        metrics = _train_one_target(merged, tgt, out_name)
+        all_metrics[out_name] = metrics
+    
+    # Save summary
+    with open(EXP_DIR / "summary_metrics.json", "w") as f:
+        json.dump(all_metrics, f, indent=2)
+    
+    print(f"\n{'='*70}")
+    print("🎉 TRAINING COMPLETE - FINAL SUMMARY")
+    print(f"{'='*70}")
+    
+    print(f"{'Target':<25} {'Winner Model':<25} {'RMSE':<12} {'R²':<12} {'Test Size':<10}")
+    print("-" * 80)
+    for name, metrics in all_metrics.items():
+        if not metrics.get("skipped", False):
+            print(f"{metrics['target']:<25} {metrics['winner']:<25} {metrics['rmse']:<12.4f} {metrics['r2']:<12.4f} {metrics['n_test']:<10}")
+        else:
+            print(f"{metrics['target']:<25} {'SKIPPED (no data)':<25} {'-':<12} {'-':<12} {'-':<10}")
+    
+    print(f"\n📁 Models saved in: {MODELS_DIR}")
+    print(f"📊 Experiments saved in: {EXP_DIR}")
+
+
+if __name__ == "__main__":
+    main()
+
 
