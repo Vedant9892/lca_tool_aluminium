@@ -86,5 +86,12 @@ def _split_table(stages: list[str], splits: dict[str, list[float]], totals: dict
             "wastewater_l":    totals["wastewater_l"]   *norm["wastewater_l"][i],
             "manufacturing_cost_per_unit_usd": totals["manufacturing_cost_per_unit"]*norm["manufacturing_cost_per_unit"][i],
             "transport_cost_usd": totals["transport_usd"]*norm["transport_usd"][i],
-        })
+        })          
     return pd.DataFrame(rows)
+
+def _adjust_factor(route_type: str, grade: str, energy_source: str) -> float:
+    grade_factor = {"high": 0.95, "medium": 1.00, "low": 1.10, "na": 1.00}[grade or "na"]
+    route_factor = 1.00 if route_type == "conventional" else 0.65
+    energy_factor = 0.85 if energy_source == "renewable" else 1.00
+    return grade_factor * route_factor * energy_factor
+        )
