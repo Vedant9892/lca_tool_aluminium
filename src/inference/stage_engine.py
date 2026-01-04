@@ -58,3 +58,12 @@ class DashboardInput:
     thickness_m: float | None = None
     width_m: float | None = None
     sheet_length_m: float | None = None
+
+def compute_pipe_mass_per_unit(outer_radius_m: float, inner_radius_m: float | None, length_m: float) -> float:
+    ri = inner_radius_m or 0.0
+    vol_m3 = math.pi * (outer_radius_m**2 - ri**2) * length_m
+    return vol_m3 * 2700.0  # kg
+
+def compute_sheet_mass_per_unit(thickness_m: float, width_m: float, length_m: float) -> float:
+    vol_m3 = thickness_m * width_m * length_m
+    return vol_m3 * 2700.0  # kg
