@@ -94,4 +94,11 @@ def _adjust_factor(route_type: str, grade: str, energy_source: str) -> float:
     route_factor = 1.00 if route_type == "conventional" else 0.65
     energy_factor = 0.85 if energy_source == "renewable" else 1.00
     return grade_factor * route_factor * energy_factor
-        )
+
+
+def _apply_eol(totals: dict[str,float], eol: str) -> dict[str,float]:
+    credit = EOL_CREDIT_FACTOR.get(eol or "landfill", 0.0)
+    out = totals.copy()
+    out["carbon_kgco2e"] *= (1.0 + credit)
+    out["manufacturing_cost_per_unit"]      *= (1.0 + 0.5*credit)
+    return out
