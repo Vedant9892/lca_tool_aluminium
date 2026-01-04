@@ -212,5 +212,48 @@ def _train_one_target(df: pd.DataFrame, target: str, out_name: str, random_state
         with open(EXP_DIR / f"{out_name}_leaderboard.json", "w") as f:
             json.dump({"target": target, "leaderboard": successful_models}, f, indent=2)
 
+       
+        # Save winning bundle
+        MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        bundle = {"model": best["estimator"], "pre": pre, "target": target, "winner": best["model_name"]}
+        joblib.dump(bundle, MODELS_DIR / f"{out_name}.pkl")
+        print(f"✅ Model saved: {MODELS_DIR / f'{out_name}.pkl'}")
+        
+        # Save metrics
+        metrics = {"target": target, "winner": best["model_name"], "rmse": best["rmse"], "r2": best["r2"], "n_test": int(len(y_te))}
+        with open(EXP_DIR / f"{out_name}_metrics.json", "w") as f:
+            json.dump(metrics, f, indent=2)
+        
+        return metrics
+    else:
+        return {"target": target, "winner": None, "rmse": None, "r2": None, "n_test": 0, "skipped": True}
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Train multi-model regressors and select best by RMSE.")
+    parser.add_argument("--out", default="data/processed/train.csv", help="Output merged CSV path")
+    args = parser.parse_args()
+    
+    out_path = Path(args.out)
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    EXP_DIR.mkdir(parents=True, exist_ok=True)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    print("🚀 Starting training pipeline...")
+    print(f"Available models: RandomForest, HistGradientBoosting, GradientBoosting", end="")
+    if HAS_XGB:
+        print(", XGBRegressor", end="")
+    if HAS_LGBM:
+        print(", LGBMRegressor", end="")
+    print("\n")
+    
+    # 1) Load and merge raw CSVs, then save processed table
+    print("📂 Loading and merging datasets...")
+    dfs = load_all(Path("data/raw"))
+    merged = merge_datasets(dfs)
+    save_training_table(merged, out_path)
+    print(f"✅ Merged dataset saved: {out_path}")
+    print(f"Dataset shape: {merged.shape}")
+
 
 
