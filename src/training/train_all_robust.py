@@ -255,5 +255,33 @@ def main():
     print(f"✅ Merged dataset saved: {out_path}")
     print(f"Dataset shape: {merged.shape}")
 
+   
+    # 2) Use the corrected target columns
+    targets = [
+        c for c in ["electricity_kwh", "carbon_kgco2e", "manufacturing_cost_per_unit","naturalGas_nm3","wastewater_l","wastewater_l","flourine_g","so2_g","Quality_Score"] if c in merged.columns
+    ]
+    
+    name_map = {
+        "electricity_kwh": "energy_predictor",
+        "carbon_kgco2e": "emissions_predictor",
+        "manufacturing_cost_per_unit": "cost_predictor",
+        "naturalGas_nm3" : "natural_gas",
+        "wastewater_l" : "water_waste",
+        "flourine_g" : "Flourine_used",
+        "so2_g" : "so2_g",
+        "Quality_Score":"Quality_predictor"
+
+    }
+    
+    
+    if not targets:
+        print("❌ No target columns found in the dataset!")
+        return
+    
+    print(f"📈 Training targets: {targets}")
+    
+    # 3) Train per target with a model zoo
+    all_metrics: Dict[str, Dict] = {}
+
 
 
