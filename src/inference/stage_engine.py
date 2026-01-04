@@ -102,3 +102,34 @@ def _apply_eol(totals: dict[str,float], eol: str) -> dict[str,float]:
     out["carbon_kgco2e"] *= (1.0 + credit)
     out["manufacturing_cost_per_unit"]      *= (1.0 + 0.5*credit)
     return out
+def build_stage_breakdown(d: DashboardInput, perkg: dict[str, float]) -> pd.DataFrame:
+    # mass per unit
+    if d.product == "pipe":
+        mass_kg = compute_pipe_mass_per_unit(d.outer_radius_m, d.inner_radius_m, d.length_m)
+        stages, splits = PIPE_STAGES, PIPE_SPLITS
+    else:
+        mass_kg = compute_sheet_mass_per_unit(d.thickness_m, d.width_m, d.sheet_length_m)
+        stages, splits = SHEET_STAGES, SHEET_SPLITS
+
+    f = _adjust_factor(d.route_type, d.bauxite_grade if d.route_type=="conventional" else "na", d.energy_source)
+    totals = {
+        "electricity_kwh": perkg["electricity_kwh"] * f * mass_kg,
+        "carbon_kgco2e":   perkg["carbon_kgco2e"]     * f * mass_kg,
+        "naturalGas_nm3": perkg.get("naturalGas_nm3", 0.05) * f * mass_kg,
+        "wastewater_l":    perkg.get("wastewater_l", 1.5)  * f * mass_kg,
+        "manufacturing_cost_per_unit":        perkg.get("manufacturing_cost_per_unit", 0.6) * f * mass_kg,
+        "transport_usd":   perkg.get("transport_usd", 0.1) * mass_kg,
+    }
+    totals = _apply_eol(totals, d.eol_option)
+
+    quality = DEFAULT_QUALITY_BY_GRADE[d.bauxite_grade if d.route_type=="conventional" else "na"]
+
+    df_unit = _split_table(stages, splits, totals, quality).assign(per_unit=True, units=1, scope="per_unit")
+    df_total = df_unit.copy()
+    if d.units and d.units > 1:
+        cols = ["electricity_kwh","carbon_kgco2e","naturalGas_nm3","wastewater_l","manufacturing_cost_per_unit_usd","transport_cost_usd"]
+        df_total[cols] = df_total[cols] * d.units
+    df_total["per_unit"] = False
+    df_total["units"] = d.units
+    df_total["scope"] = "total"
+    return pd.concat([df_unit, df_total], ignore_index=True)
