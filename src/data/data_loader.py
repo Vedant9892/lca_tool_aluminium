@@ -78,4 +78,5 @@ def load_all(raw_dir: Optional[Path] = None) -> Dict[str, pd.DataFrame]:
     df = _std_columns(_read_any(base / FILES["baux_low"]))
     out["baux_low"] = _attach_context(df, product_type="na", route_type="bauxite", energy_source="na", grade="low")
 
+
     return out
