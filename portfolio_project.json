@@ -1,0 +1,49 @@
+{
+  "title": "AI Driven LCA Tool for Aluminium",
+  "slug": "aluminium-lca-dashboard",
+  "description": "An AI-driven Life Cycle Assessment (LCA) tool that measures carbon emissions, resource usage, and recycling potential during aluminium manufacturing using real-time data analytics.",
+  "techStack": [
+    "Python 3",
+    "Flask",
+    "Flask-CORS",
+    "pandas",
+    "NumPy",
+    "scikit-learn",
+    "XGBoost (optional)",
+    "LightGBM (optional)"
+  ],
+  "features": [
+    "Multi-route LCA: conventional (bauxite grades) vs recycled; pipe and sheet with dimension-based mass (density 2700 kg/m³)",
+    "Context-aware baseline lookup: median per-kg baselines from processed CSV with hierarchical fallback (product → route → energy → grade)",
+    "Deterministic per-stage allocation via fixed split coefficients for electricity, carbon, natural gas, wastewater, manufacturing cost, and transport",
+    "End-of-life adjustment: configurable credit factors for recycle/reuse/landfill applied to carbon and cost",
+    "Data pipeline: multi-source CSV load with normalized column names and context attachment; merge with schema normalization, unit heuristics (per-tonne → per-kg), and Windows-safe write with temp-file replace retry",
+    "Training pipeline: ColumnTransformer (numeric + categorical), multi-model zoo (RandomForest, HistGradientBoosting, GradientBoosting, optional XGB/LGBM), RMSE-based model selection, leaderboard and metrics persistence",
+    "REST API: POST /compute returns stages (per_unit and total scope), totals, and baselines_used; health and index routes",
+    "Frontend: product/route-conditioned UI (pipe/sheet dimensions, bauxite grade only for conventional); client-side radius constraint validation; Chart.js bar/doughnut/line with responsive sizing and instance reuse; tabbed views; table search and CSV export"
+  ],
+  "images": [],
+  "githubUrl": "https://github.com/Vedant9892/ai-lca-tool",
+  "liveUrl": null,
+  "featured": false,
+  "content": {
+    "overview": "Backend is a single-service Flask app with CORS. No database: baselines are loaded from a processed CSV (data/processed/train.csv) per request; inference uses median_baseline() with a fallback hierarchy (product_type, route_type, energy_source, grade) and column alias handling (e.g. totalelectricitykwh → electricity_kwh). Stage breakdown is computed by build_stage_breakdown(): mass from geometry (pipe: π(R²−r²)×L; sheet: thickness×width×length), scaling by grade/route/energy factors and EOL credits, then allocating totals across fixed stage splits. Training ingests multiple raw CSVs via data_loader and merge (schema normalization, non-negative clamping), then trains per-target regressors with a shared ColumnTransformer and selects best model by RMSE; artifacts are saved with joblib. Frontend is static HTML/CSS/JS with Chart.js; charts are recreated on each compute to avoid stale state.",
+    "features": [
+      "Hierarchical median baseline lookup with five-step fallback (full context → drop grade → drop energy → product only → global) and canonical column aliases for electricity, carbon, gas, wastewater, cost, transport",
+      "Normalized split tables: PIPE_STAGES/SHEET_STAGES with per-metric allocation vectors; _normalize() ensures splits sum to 1; outputs both per_unit and total scope DataFrames",
+      "Adjustment factor: grade_factor (high/medium/low/na), route_factor (conventional 1.0, recycle 0.65), energy_factor (renewable 0.85, else 1.0); product applied to baseline totals before EOL credit",
+      "Preprocessing pipeline: ColumnTransformer with numeric branch (SimpleImputer median, StandardScaler) and categorical branch (constant imputer, OneHotEncoder handle_unknown=ignore); remainder=drop",
+      "Model zoo with consistent train/test split and RMSE/R² evaluation; NaN prediction guard; leaderboard JSON and joblib bundle (estimator + preprocessor + target name) per target",
+      "Merge pipeline: COLUMN_ALIASES for canonical names, heuristics to downscale per-tonne to per-kg by median thresholds; CONTEXT_COLS and CANONICAL_NUMERICS; dropna(how='all') on target subset; non-negative clamping; save_training_table with uuid temp file and retry loop for Windows file locks",
+      "Client-side validation: inner_radius_m ≤ outer_radius_m before POST; dimension sections toggled by product and route (grade visible only for conventional)",
+      "Chart lifecycle: destroy existing Chart instance before creating new one; container-based height calculation and max-height cap; separate options for bar/line (maintainAspectRatio: false) and doughnut (aspectRatio: 1, legend bottom)"
+    ],
+    "impact": [
+      "Single source of truth for stage-level LCA metrics (electricity, carbon, gas, wastewater, cost, transport) with consistent per-unit and total aggregation for reporting",
+      "Baseline fallback hierarchy ensures a result even with sparse or mismatched context columns in the processed dataset",
+      "Training pipeline automates merge → preprocess → multi-model evaluation → persistence and documents leaderboard and metrics per target",
+      "Deterministic inference (no model load in default API path) keeps latency predictable and avoids serialization dependencies in production",
+      "Windows-safe CSV write avoids silent failure when processed file is open elsewhere; temp-file replace with retries improves robustness in shared environments"
+    ]
+  }
+}
