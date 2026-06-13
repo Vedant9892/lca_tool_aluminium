@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCA Dashboard - Environmental Impact Assessment</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-recycle fa-2x"></i>
+                <div>
+                    <h1>LCA Dashboard</h1>
+                    <p class="subtitle">Environmental Impact Assessment Tool</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator">
+                    <i class="fas fa-circle status-dot"></i>
+                    <span>Real-time Analysis</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Input Section -->
+        <section class="input-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cog"></i>
+                    <h3>Configuration Parameters</h3>
+                    <p class="card-subtitle">Define your product specifications and manufacturing parameters</p>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="product">
+                            <i class="fas fa-cube"></i>
+                            Product Type
+                        </label>
+                        <select id="product">
+                            <option value="pipe">Aluminum Pipe</option>
+                            <option value="sheet">Aluminum Sheet</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="units">
+                            <i class="fas fa-calculator"></i>
+                            Units
+                        </label>
+                        <input type="number" id="units" min="1" value="100" placeholder="Enter quantity">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="route">
+                            <i class="fas fa-route"></i>
+                            Manufacturing Route
+                        </label>
+                        <select id="route">
+                            <option value="conventional">Conventional (Bauxite)</option>
+                            <option value="recycled">Recycled</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="grade-wrap" >
+                        <label for="grade" style="margin-top:3px;">
+                            <i class="fas fa-medal"></i>
+                            Bauxite Grade
+                        </label>
+                        <select id="grade" style="margin-top:5px;">
+                            <option value="high">High Grade</option>
+                            <option value="medium">Medium Grade</option>
+                            <option value="low">Low Grade</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="energy">
+                            <i class="fas fa-bolt"></i>
+                            Energy Source
+                        </label>
+                        <select id="energy">
+                            <option value="renewable">Renewable</option>
+                            <option value="fossil">Non-Renewable</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="eol">
+                            <i class="fas fa-recycle"></i>
+                            End-of-Life Option
+                        </label>
+                        <select id="eol">
+                            <option value="recycle">Recycle</option>
+                            <option value="landfill">Landfill</option>
+                            <option value="incineration">Incineration</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dimension Controls -->
+                <div class="dimensions-section">
+                    <div id="pipe-dims" class="dims-group">
+                        <h4><i class="fas fa-ruler-combined"></i> Pipe Dimensions</h4>
+                        <div class="dims-grid">
+                            <div class="input-group">
+                                <label for="outer_radius">Outer Radius (m)</label>
+                                <input type="number" id="outer_radius" step="0.01" value="0.1">
+                            </div>
+                            <div class="input-group">
+                                <label for="inner_radius">Inner Radius (m)</label>
+                                <input type="number" id="inner_radius" step="0.01" value="0.08">
+                            </div>
+                            <div class="input-group">
+                                <label for="pipe_length">Length (m)</label>
+                                <input type="number" id="pipe_length" step="0.01" value="2.0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sheet-dims" class="dims-group hidden">
+                        <h4><i class="fas fa-ruler-combined"></i> Sheet Dimensions</h4>
+                        <div class="dims-grid">
+                            <div class="input-group">
+                                <label for="sheet_length">Length (m)</label>
+                                <input type="number" id="sheet_length" step="0.01" value="2.0">
+                            </div>
+                            <div class="input-group">
+                                <label for="width">Width (m)</label>
+                                <input type="number" id="width" step="0.01" value="1.0">
+                            </div>
+                            <div class="input-group">
+                                <label for="thickness">Thickness (m)</label>
+                                <input type="number" id="thickness" step="0.001" value="0.005">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="compute-btn">
+                        <i class="fas fa-play"></i>
+                        Calculate Impact
+                    </button>
+                    <div id="status">Ready for calculation</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="results-section">
+            <!-- Environmental Impact Summary -->
+            <div class="summary-section">
+                <div class="section-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Environmental Impact Summary</h3>
+                    <p>Total environmental footprint across all manufacturing stages</p>
+                </div>
+
+                <div class="summary-grid" id="summary-cards">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Interactive Tabs for Data Views -->
+            <div class="tabs-section">
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="comparison">
+                        <i class="fas fa-chart-bar"></i>
+                        Comparison
+                    </button>
+                    <button class="tab-btn" data-tab="distribution">
+                        <i class="fas fa-chart-pie"></i>
+                        Distribution  
+                    </button>
+                    <button class="tab-btn" data-tab="process-flow">
+                        <i class="fas fa-project-diagram"></i>
+                        Process Flow
+                    </button>
+                    <button class="tab-btn" data-tab="efficiency">
+                        <i class="fas fa-gauge"></i>
+                        Efficiency
+                    </button>
+                </div>
+
+                <div class="tab-content">
+                    <div class="tab-panel active" id="comparison-panel">
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>CO₂ Emissions by Stage</h4>
+                                <canvas id="co2-comparison-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Electricity Consumption by Stage</h4>
+                                <canvas id="electricity-comparison-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="distribution-panel">
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>CO₂ Emissions Distribution</h4>
+                                <canvas id="co2-distribution-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Cost Distribution</h4>
+                                <canvas id="cost-distribution-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="process-flow-panel">
+                        <div class="chart-container full-width">
+                            <h4>Cumulative Environmental Impact Flow</h4>
+                            <canvas id="process-flow-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="efficiency-panel">
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h4>CO₂ Efficiency per kWh</h4>
+                                <canvas id="co2-efficiency-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>Cost per kg CO₂</h4>
+                                <canvas id="cost-efficiency-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="table-section">
+                <div class="section-header">
+                    <i class="fas fa-table"></i>
+                    <h3>Per-Stage Breakdown</h3>
+                    <p>Detailed metrics for each manufacturing stage</p>
+                </div>
+                <div class="table-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="table-search" placeholder="Search stages...">
+                    </div>
+                    <div class="table-actions">
+                        <button class="button" id="export-btn">
+                            <i class="fas fa-download"></i>
+                            Export Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Stage</th>
+                                <th>Scope</th>
+                                <th>Units</th>
+                                <th>Quality Score</th>
+                                <th>Electricity (kWh)</th>
+                                <th>CO₂ (kg)</th>
+                                <th>Natural Gas (Nm³)</th>
+                                <th>Wastewater (L)</th>
+                                <th>Manufacturing Cost ($)</th>
+                                <th>Transport Cost ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table content will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>
